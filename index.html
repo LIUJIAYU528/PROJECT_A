@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>互动剧场招商 - 移动端</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body{
+      font-family: 'Noto Sans SC', sans-serif;
+      background:#050505;
+      color:#E0E0E0;
+      margin:0;
+      overflow-x:hidden;
+    }
+
+    /* 强制分页滑动 */
+    .snap-container{
+      scroll-snap-type:y mandatory;
+      height:100vh;
+      overflow-y:scroll;
+      scrollbar-width:none;
+    }
+    .snap-container::-webkit-scrollbar{ display:none; }
+
+    .snap-section{
+      scroll-snap-align:start;
+      height:100vh;
+      width:100vw;
+      flex-shrink:0;
+      padding:1.25rem;
+      display:flex;
+      flex-direction:column;
+      position:relative;
+      box-sizing:border-box;
+      border-bottom:1px solid rgba(255,255,255,0.05);
+      overflow:hidden;
+    }
+
+    .font-num{ font-family:'Inter',sans-serif; }
+
+    /* 背景网格 */
+    .bg-grid{
+      background-image: radial-gradient(circle, #222 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    /* 磨砂 */
+    .glass-card{
+      background:rgba(30,30,30,0.7);
+      backdrop-filter: blur(10px);
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius:0.75rem;
+    }
+
+    /* 霓虹 */
+    .neon-text{
+      text-shadow:0 0 10px rgba(99,102,241,0.6);
+    }
+
+    /* reveal 动画 */
+    .reveal{
+      opacity:0;
+      transform:translateY(18px);
+      transition:all .6s cubic-bezier(0.22,1,0.36,1);
+    }
+    .snap-section:target .reveal, .active .reveal{
+      opacity:1;
+      transform:translateY(0);
+    }
+
+    /* 进度条 */
+    .progress-bar{
+      height:6px;
+      background:#1f1f1f;
+      border-radius:999px;
+      overflow:hidden;
+    }
+    .progress-fill{
+      height:100%;
+      background:#6366f1;
+    }
+
+    /* 轻微光晕背景 */
+    .halo{
+      position:absolute;
+      inset:-40px;
+      background:
+        radial-gradient(600px 300px at 70% 15%, rgba(99,102,241,0.18), transparent 60%),
+        radial-gradient(500px 260px at 20% 70%, rgba(168,85,247,0.12), transparent 60%),
+        radial-gradient(420px 220px at 80% 85%, rgba(16,185,129,0.10), transparent 60%);
+      pointer-events:none;
+      filter:saturate(110%);
+    }
+
+    /* 卡片标题 */
+    .mini-title{
+      font-size:10px;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:rgba(156,163,175,0.85);
+    }
+
+    /* 小组件徽章 */
+    .badge{
+      border:1px solid rgba(255,255,255,0.10);
+      background:rgba(255,255,255,0.04);
+      border-radius:999px;
+      padding:.35rem .6rem;
+      font-size:10px;
+      color:rgba(209,213,219,0.9);
+      white-space:nowrap;
+    }
+  </style>
+</head>
+
+<body class="bg-grid">
+  <div class="snap-container" id="scroll-container">
+    <!-- 页面由 JS 渲染 -->
+  </div>
+
+  <!-- 底部页码指示器 -->
+  <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-black/50 px-3 py-1 rounded-full border border-white/10 backdrop-blur-md">
+    <span id="page-current" class="font-num text-indigo-400 text-sm">01</span>
+    <span class="text-gray-600 text-[10px]">/</span>
+    <span class="font-num text-gray-500 text-[10px]">19</span>
+  </div>
+
+  <script>
+    const slides = [
+      {
+        id:"01",
+        title:"封面",
+        conclusion:"我们不是做聊天工具，是做可持续更新的互动世界",
+        sub:[
+          "AI 互动剧场：进入的是世界，不是输入框",
+          "把聊天做成一场会长大的互动人生",
+          "你不是在和 AI 聊天，你是在一个世界里生活",
+          "对话是操作，时间推动世界，内容付费让世界持续增长",
+          "舞台追光 + 小镇夜景，右下角 START 开演"
+        ],
+        visual: `
+          <div class="flex-1 flex flex-col justify-center items-center relative">
+            <div class="absolute inset-0 rounded-2xl opacity-70"
+                 style="background:
+                  radial-gradient(520px 240px at 50% 20%, rgba(99,102,241,0.28), transparent 60%),
+                  radial-gradient(520px 260px at 50% 80%, rgba(16,185,129,0.10), transparent 60%);">
+            </div>
+
+            <div class="relative w-full glass-card p-5 border border-indigo-500/20">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-11 h-11 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center">
+                    <i data-lucide="spotlight" class="w-6 h-6 text-indigo-400"></i>
+                  </div>
+                  <div>
+                    <div class="text-[11px] text-indigo-300 font-medium tracking-wide">AI INTERACTIVE THEATER</div>
+                    <div class="text-xl font-black neon-text tracking-tight">互动剧场</div>
+                  </div>
+                </div>
+                <div class="font-num text-[10px] text-gray-500 tracking-widest">PITCH</div>
+              </div>
+
+              <div class="mt-5 grid grid-cols-3 gap-2">
+                <div class="glass-card p-3 text-center">
+                  <div class="mini-title">Rule</div>
+                  <div class="text-xs mt-1 text-gray-200">对话是操作</div>
+                </div>
+                <div class="glass-card p-3 text-center">
+                  <div class="mini-title">Time</div>
+                  <div class="text-xs mt-1 text-gray-200">时间推进</div>
+                </div>
+                <div class="glass-card p-3 text-center">
+                  <div class="mini-title">Growth</div>
+                  <div class="text-xs mt-1 text-gray-200">内容长大</div>
+                </div>
+              </div>
+
+              <div class="mt-5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="badge">世界</span>
+                  <span class="badge">群像</span>
+                  <span class="badge">节日</span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <div class="w-10 h-10 rounded-full border-2 border-indigo-500/60 flex items-center justify-center">
+                    <i data-lucide="play" class="w-5 h-5 text-indigo-400"></i>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-xs text-gray-300 font-medium">START</div>
+                    <div class="text-[10px] text-gray-500">开演</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `,
+        supports:"对话是操作 · 时间推动世界 · 内容付费持续增长"
+      },
+
+      {
+        id:"02",
+        title:"市场已验证",
+        conclusion:"钱验证陪伴愿付费，但行业缺可沉淀、可复玩、可运营的故事资产",
+        sub:[
+          "陪伴类应用已跑出稳定付费习惯",
+          "主流产品仍停留在聊，内容难复用、难季更",
+          "供给侧爆发：半年新增大量应用",
+          "收入集中：做第二梯队泛聊很难赢",
+          "必须靠结构化内容与运营形成护城河"
+        ],
+        visual: `
+          <div class="flex-1 flex flex-col justify-center gap-4">
+            <div class="glass-card p-4 border border-indigo-500/20">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="coins" class="w-5 h-5 text-indigo-400"></i>
+                  <div class="text-[11px] text-gray-400 tracking-widest uppercase">累计消费者支出</div>
+                </div>
+                <div class="text-[10px] text-gray-500 font-num">All-time</div>
+              </div>
+              <div class="mt-2 flex items-end justify-between">
+                <div class="font-num text-5xl font-bold text-indigo-400">$2.21亿</div>
+                <div class="text-[10px] text-gray-500">核心主视觉只保留一个大数</div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div class="glass-card p-3">
+                <div class="mini-title">2025 H1</div>
+                <div class="mt-1 font-num text-xl font-bold text-gray-100">$8200万</div>
+                <div class="mt-2 progress-bar">
+                  <div class="progress-fill" style="width:68%"></div>
+                </div>
+                <div class="mt-2 text-[10px] text-gray-500">对比全年预测节奏</div>
+              </div>
+              <div class="glass-card p-3">
+                <div class="mini-title">2025 Est.</div>
+                <div class="mt-1 font-num text-xl font-bold text-gray-100">$1.2亿</div>
+                <div class="mt-2 progress-bar">
+                  <div class="progress-fill" style="width:100%"></div>
+                </div>
+                <div class="mt-2 text-[10px] text-gray-500">全年预测占位</div>
+              </div>
+            </div>
+
+            <div class="glass-card p-3">
+              <div class="flex items-center justify-between">
+                <div class="mini-title">赢家通吃</div>
+                <div class="text-[10px] text-gray-500">前 10% 拿走 89%</div>
+              </div>
+              <div class="mt-2 h-3 bg-gray-900 rounded-full overflow-hidden border border-white/5">
+                <div class="h-full bg-indigo-500" style="width:89%"></div>
+              </div>
+              <div class="mt-2 flex items-center justify-between">
+                <span class="badge">累计下载 2.2 亿</span>
+                <span class="badge">内容沉淀稀缺</span>
+              </div>
+            </div>
+
+            <div class="text-[10px] text-gray-500 px-1">
+              可选脚注：CHAI 口径 ARR 3000 万美元（公开披露口径）
+            </div>
+          </div>
+        `,
+        supports:"金币堆 + 大数 · 进度条：82M/120M · 占比条：前10%拿89%"
+      },
+
+      {
+        id:"03",
+        title:"参与式叙事",
+        conclusion:"互动叙事是成熟赛道，AI 让它线上化、规模化",
+        sub:[
+          "跑团卖进入世界、做选择、故事因我而变",
+          "剧本杀/密室把角色扮演、解谜、社交商品化",
+          "沉浸式演艺卖我在世界里，不是我在看内容",
+          "AI 把 DM/群演/编剧/运营系统化",
+          "结果：叙事成本下降，更新频率上升"
+        ],
+        visual: `
+          <div class="flex-1 flex flex-col justify-center gap-3">
+            <div class="glass-card p-4 border border-indigo-500/20">
+              <div class="mini-title">时间轴</div>
+              <div class="mt-3 flex flex-col gap-2">
+                <div class="flex items-center gap-3">
+                  <div class="w-7 h-7 rounded-full bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center">
+                    <i data-lucide="dices" class="w-4 h-4 text-indigo-400"></i>
+                  </div>
+                  <div class="text-sm text-gray-200">跑团</div>
+                  <div class="ml-auto text-[10px] text-gray-500">进入世界做选择</div>
+                </div>
+                <div class="h-px bg-white/5"></div>
+                <div class="flex items-center gap-3">
+                  <div class="w-7 h-7 rounded-full bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center">
+                    <i data-lucide="key" class="w-4 h-4 text-indigo-400"></i>
+                  </div>
+                  <div class="text-sm text-gray-200">剧本杀/密室</div>
+                  <div class="ml-auto text-[10px] text-gray-500">角色扮演解谜社交</div>
+                </div>
+                <div class="h-px bg-white/5"></div>
+                <div class="flex items-center gap-3">
+                  <div class="w-7 h-7 rounded-full bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center">
+                    <i data-lucide="theater" class="w-4 h-4 text-indigo-400"></i>
+                  </div>
+                  <div class="text-sm text-gray-200">沉浸式演艺</div>
+                  <div class="ml-auto text-[10px] text-gray-500">我在世界里</div>
+                </div>
+                <div class="h-px bg-white/5"></div>
+                <div class="flex items-center gap-3">
+                  <div class="w-7 h-7 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
+                    <i data-lucide="cpu" class="w-4 h-4 text-emerald-300"></i>
+                  </div>
+                  <div class="text-sm text-gray-200">线上互动剧场</div>
+                  <div class="ml-auto text-[10px] text-gray-500">AI 规模化系统导演</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div class="glass-card p-3">
+                <div class="mini-title">玩家规模</div>
+                <div class="mt-1 text-sm text-gray-200">D&D 估算 5000 万量级</div>
+                <div class="mt-2 text-[10px] text-gray-500">作为跑团心智参照</div>
+              </div>
+              <div class="glass-card p-3">
+                <div class="mini-title">行业规模</div>
+                <div class="mt-1 text-sm text-gray-200">中国剧本娱乐常见引用 195 亿</div>
+                <div class="mt-2 text-[10px] text-gray-500">建议最终以可出示研报截图锁口径</div>
+              </div>
+            </div>
+          </div>
+        `,
+        supports:"时间轴 + 数据卡墙 · 把成熟叙事赛道线上化"
+      },
+
+      {
+        id:"04",
+        title:"竞品格局",
+        conclusion:"行业拥挤的是聊天，稀缺的是内容沉淀与运营结构",
+        sub:[
+          "AI 聊天陪伴：上手快供给多，但易聊散同质化",
+          "传统叙事游戏：资产强可复玩，但成本高更新慢",
+          "我们的定位：用 AI 打下成本，用剧场结构抬上体验",
+          "差异来自节日/事件链/季更，而不是多参数",
+          "目标是可复盘、可复玩、可运营"
+        ],
+        visual: `
+          <div class="flex-1 flex items-center justify-center">
+            <div class="w-full grid grid-cols-5 gap-3">
+              <div class="col-span-3 glass-card p-3 border border-white/5">
+                <div class="mini-title">四象限</div>
+                <div class="mt-2 grid grid-cols-2 gap-2 text-[10px]">
+                  <div class="glass-card p-3 text-center border border-white/5">
+                    <div class="text-gray-300 font-medium">纯聊天</div>
+                    <div class="mt-1 text-gray-500">易聊散</div>
+                  </div>
+                  <div class="glass-card p-3 text-center border border-white/5">
+                    <div class="text-gray-300 font-medium">角色沉浸</div>
+                    <div class="mt-1 text-gray-500">难季更</div>
+                  </div>
+                  <div class="glass-card p-3 text-center border border-white/5">
+                    <div class="text-gray-300 font-medium">叙事游戏</div>
+                    <div class="mt-1 text-gray-500">成本高</div>
+                  </div>
+                  <div class="glass-card p-3 text-center border border-indigo-500/40 bg-indigo-500/10">
+                    <div class="text-indigo-200 font-semibold">互动剧场</div>
+                    <div class="mt-1 text-indigo-300/80">长线结构</div>
+                  </div>
+                </div>
+                <div class="mt-3 text-[10px] text-gray-500">
+                  维度：内容资产强弱 × 运营抓手强弱
+                </div>
+              </div>
+
+              <div class="col-span-2 glass-card p-3 border border-indigo-500/15">
+                <div class="mini-title">我们要补的结构</div>
+                <div class="mt-2 space-y-2 text-xs">
+                  <div class="flex items-start gap-2">
+                    <i data-lucide="check" class="w-4 h-4 text-indigo-400 mt-0.5"></i>
+                    <div><div class="text-gray-200 font-medium">降低成本</div><div class="text-[10px] text-gray-500">事件引擎替代重人力</div></div>
+                  </div>
+                  <div class="flex items-start gap-2">
+                    <i data-lucide="check" class="w-4 h-4 text-indigo-400 mt-0.5"></i>
+                    <div><div class="text-gray-200 font-medium">提升复玩</div><div class="text-[10px] text-gray-500">同一世界多条人生线</div></div>
+                  </div>
+                  <div class="flex items-start gap-2">
+                    <i data-lucide="check" class="w-4 h-4 text-indigo-400 mt-0.5"></i>
+                    <div><div class="text-gray-200 font-medium">提高可运营</div><div class="text-[10px] text-gray-500">节日/事件链/季更节奏</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `,
+        supports:"四象限贴纸 + 三条对勾清单 · 一眼看出稀缺结构"
+      },
+
+      {
+        id:"04A",
+        title:"最像的竞品",
+        conclusion:"沉浸陪伴与互动叙事能跑，但我们要补上世界节奏与内容沉淀",
+        sub:[
+          "竞品强在沉浸与付费已验证",
+          "短板是世界连续性不足、运营抓手不足",
+          "我们补三根骨架：节日体系、事件链、日记资产",
+          "把一次性对话升级为可复玩、可运营、可招商世界资产",
+          "上半看竞品，下半看结构差异"
+        ],
+        visual: `
+          <div class="flex-1 flex flex-col justify-center gap-3">
+            <div class="glass-card p-3 border border-white/5">
+              <div class="mini-title">竞品卡片墙</div>
+              <div class="mt-2 flex gap-2 overflow-x-auto pb-2">
+                <div class="min-w-[160px] glass-card p-3 border border-white/5">
+                  <div class="text-xs font-semibold text-gray-200">Character.AI</div>
+                  <div class="mt-1 text-[10px] text-gray-500">偏角色聊天室</div>
+                  <div class="mt-2 font-num text-lg font-bold text-indigo-300">18min</div>
+                  <div class="text-[10px] text-gray-500">访问时长（示例口径）</div>
+                </div>
+                <div class="min-w-[160px] glass-card p-3 border border-white/5">
+                  <div class="text-xs font-semibold text-gray-200">Talkie</div>
+                  <div class="mt-1 text-[10px] text-gray-500">角色社区 + 玩法化</div>
+                  <div class="mt-2 font-num text-lg font-bold text-indigo-300">海外增长</div>
+                  <div class="text-[10px] text-gray-500">收入贡献显著</div>
+                </div>
+                <div class="min-w-[160px] glass-card p-3 border border-white/5">
+                  <div class="text-xs font-semibold text-gray-200">Replika</div>
+                  <div class="mt-1 text-[10px] text-gray-500">付费成熟</div>
+                  <div class="mt-2 font-num text-lg font-bold text-rose-300">合规压力</div>
+                  <div class="text-[10px] text-gray-500">年龄验证与监管</div>
+                </div>
+                <div class="min-w-[160px] glass-card p-3 border border-white/5">
+                  <div class="text-xs font-semibold text-gray-200">AI Dungeon</div>
+                  <div class="mt-1 text-[10px] text-gray-500">互动叙事</div>
+                  <div class="mt-2 font-num text-lg font-bold text-indigo-300">单线</div>
+                  <div class="text-[10px] text-gray-500">世界运营偏弱</div>
+                </div>
+                <div class="min-w-[160px] glass-card p-3 border border-white/5">
+                  <div class="text-xs font-semibold text-gray-200">CHAI</div>
+                  <div class="mt-1 text-[10px] text-gray-500">平台化供给</div>
+                  <div class="mt-2 font-num text-lg font-bold text-indigo-300">ARR 3000万</div>
+                  <div class="text-[10px] text-gray-500">公开披露口径</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2">
+              <div class="glass-card p-3 border border-indigo-500/20 bg-indigo-500/10">
+                <div class="text-xs font-semibold text-indigo-200">节日体系</div>
+                <div class="mt-1 text-[10px] text-indigo-200/70">可运营节奏</div>
+              </div>
+              <div class="glass-card p-3 border border-indigo-500/20 bg-indigo-500/10">
+                <div class="text-xs font-semibold text-indigo-200">事件链</div>
+                <div class="mt-1 text-[10px] text-indigo-200/70">矛盾升级回收</div>
+              </div>
+              <div class="glass-card p-3 border border-indigo-500/20 bg-indigo-500/10">
+                <div class="text-xs font-semibold text-indigo-200">日记资产</div>
+                <div class="mt-1 text-[10px] text-indigo-200/70">复盘与传播</div>
+              </div>
+            </div>
+          </div>
+        `,
+        supports:"上半竞品卡片墙 · 下半三根骨架：节日/事件链/日记资产"
+      },
+
+      {
+        id:"05",
+        title:"我们的长处",
+        conclusion:"不是照搬形态，而是把增长与变现嵌进剧场结构",
+        sub:[
+          "低门槛开演：免注册试玩，3 秒进入第一幕",
+          "分享即开演：传播动作就是开场动作",
+          "平台化供给：角色/剧目模板化生产，支持分发",
+          "沉浸增强：语音、关键帧、场景卡强化在场感",
+          "盖章结论：不做聊到爽，做聊出故事"
+        ],
+        visual: `
+          <div class="flex-1 flex flex-col justify-center gap-3">
+            <div class="glass-card p-4 border border-indigo-500/20">
+              <div class="mini-title">装备栏 / 技能树</div>
+              <div class="mt-3 grid grid-cols-3 gap-2">
+                <div class="glass-card p-3">
+                  <div class="text-xs font-semibold text-gray-200">开演</div>
+                  <div class="mt-2 space-y-2">
+                    <div class="flex items-center gap-2 text-[10px] text-gray-400">
+                      <span class="w-2 h-2 rounded-full bg-indigo-500"></span>免注册试玩
+                    </div>
+                    <div class="flex items-center gap-2 text-[10px] text-gray-400">
+                      <span class="w-2 h-2 rounded-full bg-indigo-500"></span>3 秒入第一幕
+                    </div>
+                    <div class="flex items-center gap-2 text-[10px] text-gray-400">
+                      <span class="w-2 h-2 rounded-full bg-indigo-500"></span>分享即开演
+                    </div>
+                  </div>
+                </div>
+                <div class="glass-card p-3">
+                  <div class="text-xs font-semibold text-gray-200">供给</div>
+                  <div class="mt-2 space-y-2">
+                    <div class="flex items-center gap-2 text-[10px] text-gray-400">
+                      <span class="w-2 h-2 rounded-full bg-indigo-500"></span>角色模板
+                    </div>
+                    <div class="flex items-center gap-2 text-[10px] text-gray-400">
+                      <span class="w-2 h-2 rounded-full bg-indigo-500"></span>剧目模板
+                    </div>
+                    <div class="flex items-center gap-2 text-[10px] text-gray-400">
+                      <span class="w-2 h-2 rounded-full bg-indigo-500"></span>分发复用
+                    </div>
+                  </div>
+                </div>
+                <div class="glass-card p-3">
+                  <div class="text-xs font-semibold text-gray-200">沉浸</div>
+                  <div class="mt-2 space-y-2">
+                    <div class="flex items-center gap-2 text-[10px] text-gray-400">
+                      <span class="w-2 h-2 rounded-full bg-indigo-500"></span>语音
+                    </div>
+                    <div class="flex items-center gap-2 text-[10px] text-gray-400">
+                      <span class="w-2 h-2 rounded-full bg-indigo-500"></span>关键帧
+                    </div>
+                    <div class="flex items-center gap-2 text-[10px] text-gray-400">
+                      <span class="w-2 h-2 rounded-full bg-indigo-500"></span>场景卡
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4 glass-card p-3 border border-white/5">
+                <div class="mini-title">我们不做什么</div>
+                <div class="mt-2 text-[10px] text-gray-400">
+                  不做无限闲聊 · 不做一次性剧情 · 不做纯工具感生成
+                </div>
+              </div>
+            </div>
+          </div>
+        `,
+        supports:"三列技能树 + 一条不做什么 · 把增长与变现嵌进结构"
+      },
+
+      {
+        id:"06",
+        title:"一句话定义",
+        conclusion:"用一个公式把产品讲死，避免被理解成聊天软件",
+        sub:[
+          "互动剧场 = 生活模拟小世界 + AI 群像角色",
+          "时间/节日推进 + 事件引擎编排人生",
+          "主玩法是对话，辅以轻挂机",
+          "你不在线，世界也继续",
+          "对话即操作，触发状态变更"
+        ],
+        visual: `
+          <div class="flex-1 flex flex-col justify-center gap-3">
+            <div class="glass-card p-4 border border-indigo-500/20">
+              <div class="text-sm font-semibold text-gray-200">互动剧场</div>
+              <div class="mt-2 flex flex-wrap gap-2 items-center text-xs">
+                <span class="bg-indigo-600/80 px-3 py-1 rounded">小世界</span>
+                <span class="text-gray-600">+</span>
+                <span class="bg-purple-600/80 px-3 py-1 rounded">群像</span>
+                <span class="text-gray-600">+</span>
+                <span class="bg-emerald-600/80 px-3 py-1 rounded">时间</span>
+                <span class="text-gray-600">+</span>
+                <span class="bg-orange-600/80 px-3 py-1 rounded">引擎</span>
+              </div>
+
+              <div class="mt-4 grid grid-cols-3 gap-2">
+                <div class="glass-card p-3">
+                  <div class="mini-title">例子 1</div>
+                  <div class="mt-1 text-[11px] text-gray-200">答应参加节日</div>
+                  <div class="mt-1 text-[10px] text-gray-500">事件链开始排期</div>
+                </div>
+                <div class="glass-card p-3">
+                  <div class="mini-title">例子 2</div>
+                  <div class="mt-1 text-[11px] text-gray-200">拒绝某人邀约</div>
+                  <div class="mt-1 text-[10px] text-gray-500">关系立场变化</div>
+                </div>
+                <div class="glass-card p-3">
+                  <div class="mini-title">例子 3</div>
+                  <div class="mt-1 text-[11px] text-gray-200">送礼或承诺</div>
+                  <div class="mt-1 text-[10px] text-gray-500">触发番外事件</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `,
+        supports:"公式 + 四图标锚点 · 三个对话即操作例子卡"
+      },
+
+      {
+        id:"07",
+        title:"第一座剧场",
+        conclusion:"生活模拟的魅力在时间与人，天然适配季更运营结构",
+        sub:[
+          "小镇日程：昼夜、工作、社交、季节、节日",
+          "小镇职业：医生、健身教练、镇长、商人、艺术家",
+          "玩家身份：外来者逐步融入，拥有生活轨迹",
+          "心智参照：Stardew Valley 累计销量 4100 万+（口径）",
+          "节日热力图让节奏一眼可见"
+        ],
+        visual: `
+          <div class="flex-1 flex flex-col justify-center gap-3">
+            <div class="glass-card p-4 border border-indigo-500/15">
+              <div class="flex items-center justify-between">
+                <div class="mini-title">小镇地图</div>
+                <span class="badge font-num">41M+</span>
+              </div>
+
+              <div class="mt-3 grid grid-cols-3 gap-2">
+                <div class="glass-card p-3 text-center">
+                  <i data-lucide="home" class="w-4 h-4 text-indigo-400 mx-auto"></i>
+                  <div class="mt-1 text-[10px] text-gray-300">住处</div>
+                </div>
+                <div class="glass-card p-3 text-center">
+                  <i data-lucide="building-2" class="w-4 h-4 text-indigo-400 mx-auto"></i>
+                  <div class="mt-1 text-[10px] text-gray-300">广场</div>
+                </div>
+                <div class="glass-card p-3 text-center">
+                  <i data-lucide="coffee" class="w-4 h-4 text-indigo-400 mx-auto"></i>
+                  <div class="mt-1 text-[10px] text-gray-300">酒馆</div>
+                </div>
+              </div>
+
+              <div class="mt-3 glass-card p-3 border border-white/5">
+                <div class="mini-title">节日密度</div>
+                <div class="mt-2 grid grid-cols-7 gap-1">
+                  <div class="h-4 rounded bg-gray-800"></div>
+                  <div class="h-4 rounded bg-indigo-500/40"></div>
+                  <div class="h-4 rounded bg-gray-800"></div>
+                  <div class="h-4 rounded bg-gray-800"></div>
+                  <div class="h-4 rounded bg-indigo-500/40"></div>
+                  <div class="h-4 rounded bg-gray-800"></div>
+                  <div class="h-4 rounded bg-gray-800"></div>
+                </div>
+                <div class="mt-2 text-[10px] text-gray-500">每周每月可运营节奏一眼可见</div>
+              </div>
+            </div>
+          </div>
+        `,
+        supports:"地图主视觉 + 节日热力图 · 生活模拟天然适配季更"
+      },
+
+      {
+        id:"08",
+        title:"角色系统",
+        conclusion:"不是好感度条，而是立场、旧事、边界，可被事件改变",
+        sub:[
+          "单体深度：MBTI、星座、人生目标、边界",
+          "群体网络：朋友/竞争/暧昧/同事/家族，有旧事与立场",
+          "动态变化：关系会被翻译成情绪与事件",
+          "同一事件在不同立场下会出现不同分支",
+          "记忆让关系延续而不是重置"
+        ],
+        visual: `
+          <div class="flex-1 flex flex-col justify-center gap-3">
+            <div class="glass-card p-4 border border-indigo-500/15 relative overflow-hidden">
+              <div class="mini-title">关系网示意</div>
+
+              <div class="mt-3 relative h-36">
+                <div class="absolute left-3 top-10 w-8 h-8 rounded-full bg-indigo-500/20 border border-indigo-500/40"></div>
+                <div class="absolute left-16 top-3 w-10 h-10 rounded-full bg-gray-800 border border-white/10"></div>
+                <div class="absolute left-28 top-12 w-9 h-9 rounded-full bg-gray-800 border border-white/10"></div>
+                <div class="absolute left-40 top-6 w-8 h-8 rounded-full bg-gray-800 border border-white/10"></div>
+                <div class="absolute left-52 top-14 w-11 h-11 rounded-full bg-indigo-500/10 border border-indigo-500/20"></div>
+
+                <div class="absolute left-8 top-12 w-32 h-px bg-indigo-500/30"></div>
+                <div class="absolute left-20 top-18 w-44 h-px bg-white/10"></div>
+                <div class="absolute left-22 top-28 w-48 h-px bg-white/10"></div>
+              </div>
+
+              <div class="mt-3 grid grid-cols-2 gap-2">
+                <div class="glass-card p-3 border border-white/5">
+                  <div class="mini-title">角色名片</div>
+                  <div class="mt-1 text-xs text-gray-200 font-semibold">健身教练</div>
+                  <div class="mt-1 text-[10px] text-gray-500">边界：不接受敷衍承诺</div>
+                </div>
+                <div class="glass-card p-3 border border-white/5">
+                  <div class="mini-title">最近事件</div>
+                  <div class="mt-1 text-[10px] text-gray-400">今天她把训练计划改给了你</div>
+                  <div class="mt-1 text-[10px] text-gray-400">但对你迟到表示不满</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `,
+        supports:"关系网 + 角色名片 + 最近事件三句 · 人设靠边界与旧事稳定"
+      },
+
+      {
+        id:"09",
+        title:"核心玩法闭环",
+        conclusion:"日记把聊天变成剧情资产，把传播升级成分享人生片段",
+        sub:[
+          "流程：进入小镇 → 选择动线 → 对话推进 → 触发事件 → 状态变更",
+          "日记：每天自动生成镇民日记",
+          "价值：存档、复盘、分享传播的高光内容",
+          "产品节奏：每日 1 页日记，每周 1 大事件，每季 1 次结构变化",
+          "内容变资产，资产带回流"
+        ],
+        visual: `
+          <div class="flex-1 flex flex-col justify-center gap-3">
+            <div class="glass-card p-3 border border-white/5">
+              <div class="mini-title">五步闭环</div>
+              <div class="mt-2 flex gap-2 overflow-x-auto pb-1">
+                <div class="min-w-[88px] glass-card p-3 text-center border border-white/5">
+                  <i data-lucide="door-open" class="w-4 h-4 text-indigo-400 mx-auto"></i>
+                  <div class="mt-1 text-[10px] text-gray-300">进入</div>
+                </div>
+                <div class="min-w-[88px] glass-card p-3 text-center border border-white/5">
+                  <i data-lucide="route" class="w-4 h-4 text-indigo-400 mx-auto"></i>
+                  <div class="mt-1 text-[10px] text-gray-300">动线</div>
+                </div>
+                <div class="min-w-[88px] glass-card p-3 text-center border border-white/5">
+                  <i data-lucide="messages-square" class="w-4 h-4 text-indigo-400 mx-auto"></i>
+                  <div class="mt-1 text-[10px] text-gray-300">对话</div>
+                </div>
+                <div class="min-w-[88px] glass-card p-3 text-center border border-white/5">
+                  <i data-lucide="sparkles" class="w-4 h-4 text-indigo-400 mx-auto"></i>
+                  <div class="mt-1 text-[10px] text-gray-300">事件</div>
+                </div>
+                <div class="min-w-[88px] glass-card p-3 text-center border border-white/5">
+                  <i data-lucide="bookmark" class="w-4 h-4 text-indigo-400 mx-auto"></i>
+                  <div class="mt-1 text-[10px] text-gray-300">日记</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-card p-4 border border-indigo-500/20">
+              <div class="text-[10px] text-indigo-400 font-num mb-1">2026.02.01</div>
+              <div class="text-sm text-gray-200 leading-snug">
+                今天你答应参加月光节，她没有表现得很开心，只是把那张邀请卡重新塞进了口袋。
+              </div>
+              <div class="mt-3 grid grid-cols-3 gap-2">
+                <div class="glass-card p-2 text-center">
+                  <div class="font-num text-sm text-indigo-300 font-bold">1</div>
+                  <div class="text-[10px] text-gray-500">每日</div>
+                </div>
+                <div class="glass-card p-2 text-center">
+                  <div class="font-num text-sm text-indigo-300 font-bold">1</div>
+                  <div class="text-[10px] text-gray-500">每周</div>
+                </div>
+                <div class="glass-card p-2 text-center">
+                  <div class="font-num text-sm text-indigo-300 font-bold">1</div>
+                  <div class="text-[10px] text-gray-500">每季</div>
+                </div>
+              </div>
+              <div class="mt-3 bg-indigo-600/90 text-center text-xs rounded-lg py-2 font-semibold">
+                分享人生片段
+              </div>
+            </div>
+          </div>
+        `,
+        supports:"日记卡主视觉 + 五步闭环 · 每日/每周/每季节奏形成可运营结构"
+      },
+
+      {
+        id:"10",
+        title:"AI 事件引擎",
+        conclusion:"用事件结构呈现误会、试探、和解、成长，而不是堆模型参数",
+        sub:[
+          "输入：时间/节日、角色目标、关系状态、关键记忆、冲突线索、玩家承诺",
+          "编排：分幕节奏、矛盾升级、伏笔回收、转场收束",
+          "输出：事件卡、对话走向、支线任务、日记高光",
+          "生活服务融入剧情：健身教练、小镇医生、镇长导师",
+          "结构化输出 + 校验让体验稳定可控"
+        ],
+        visual: `
+          <div class="flex-1 flex flex-col justify-center gap-3">
+            <div class="glass-card p-4 border border-indigo-500/15">
+              <div class="mini-title">管线图</div>
+              <div class="mt-3 flex items-center justify-between gap-2">
+                <div class="glass-card p-3 flex-1 border border-white/5">
+                  <div class="text-xs font-semibold text-gray-200">Input</div>
+                  <div class="mt-1 text-[10px] text-gray-500">时间 · 关系 · 记忆</div>
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-600"></i>
+                <div class="glass-card p-3 w-24 border border-indigo-500/30 bg-indigo-500/10 text-center">
+                  <div class="text-xs font-semibold text-indigo-200">Engine</div>
+                  <div class="mt-1 text-[10px] text-indigo-200/70">系统导演</div>
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-600"></i>
+                <div class="glass-card p-3 flex-1 border border-white/5">
+                  <div class="text-xs font-semibold text-gray-200">Output</div>
+                  <div class="mt-1 text-[10px] text-gray-500">事件卡 · 分支 · 日记</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2">
+              <div class="glass-card p-3 border border-white/5">
+                <div class="mini-title">场景卡</div>
+                <div class="mt-1 text-[10px] text-gray-300">医生提醒你睡眠不足</div>
+              </div>
+              <div class="glass-card p-3 border border-white/5">
+                <div class="mini-title">场景卡</div>
+                <div class="mt-1 text-[10px] text-gray-300">镇长让你负责节日布置</div>
+              </div>
+              <div class="glass-card p-3 border border-white/5">
+                <div class="mini-title">场景卡</div>
+                <div class="mt-1 text-[10px] text-gray-300">教练提出新的训练赌约</div>
+              </div>
+            </div>
+          </div>
+        `,
+        supports:"Input→Engine→Output 三段管线 · 右下三张生活服务场景卡"
+      },
+
+      {
+        id:"11",
+        title:"多世界拓展",
+        conclusion:"小镇只是第一套模板，我们在做可复制的互动剧场引擎",
+        sub:[
+          "校园世界：友情、社团、成长",
+          "爱豆世界：练习、舞台、人际、压力",
+          "仙侠世界：门派、修炼、秘境、师徒、人情债",
+          "类宝可梦世界：图鉴、捕捉、培养、道馆联赛、交换社交",
+          "共性引擎：挂机 + 节日体系 + 群像关系网 + 季更内容"
+        ],
+        visual: `
+          <div class="flex-1 flex flex-col justify-center gap-3">
+            <div class="glass-card p-3 border border-white/5">
+              <div class="mini-title">选关海报墙</div>
+              <div class="mt-2 grid grid-cols-5 gap-2">
+                <div class="h-16 rounded-lg bg-gray-800 border border-white/5"></div>
+                <div class="h-16 rounded-lg bg-gray-800 border border-white/5"></div>
+                <div class="h-16 rounded-lg bg-indigo-500/15 border border-indigo-500/20"></div>
+                <div class="h-16 rounded-lg bg-gray-800 border border-white/5"></div>
+                <div class="h-16 rounded-lg bg-indigo-500/15 border border-indigo-500/20"></div>
+              </div>
+              <div class="mt-2 text-[10px] text-gray-500">
+                仙侠与类宝可梦主题加入海报墙
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div class="glass-card p-3">
+                <div class="mini-title">模板四件套</div>
+                <div class="mt-2 grid grid-cols-2 gap-2 text-[10px] text-gray-300">
+                  <div class="glass-card p-2 text-center">引擎复用</div>
+                  <div class="glass-card p-2 text-center">内容换皮</div>
+                  <div class="glass-card p-2 text-center">节日复用</div>
+                  <div class="glass-card p-2 text-center">事件库替换</div>
+                </div>
+              </div>
+              <div class="glass-card p-3">
+                <div class="mini-title">扩张原则</div>
+                <div class="mt-2 text-sm text-gray-200 font-semibold">扩张不等于重做</div>
+                <div class="mt-1 text-[10px] text-gray-500">换世界观与事件库，保留结构与节奏</div>
+              </div>
+            </div>
+          </div>
+        `,
+        supports:"海报墙 + 模板四件套 · 引擎复用，内容换皮"
+      },
+
+      {
+        id:"12",
+        title:"资产工厂",
+        conclusion:"卖给合作方的不是广告位，是剧情参与权与记忆资产",
+        sub:[
+          "文本：分幕剧本、事件卡、日记卡",
+          "语音：关键台词、角色语气差异、节日广播",
+          "图片：像素立绘、关键帧、道具卡面、海报",
+          "动画：关系升级动效、节日开场演出、关键过场",
+          "合作不只是露出，而是把品牌做成世界的一部分"
+        ],
+        visual: `
+          <div class="flex-1 flex flex-col justify-center gap-3">
+            <div class="glass-card p-4 border border-indigo-500/15">
+              <div class="mini-title">流水线</div>
+              <div class="mt-3 flex items-center justify-between gap-2">
+                <div class="glass-card p-3 flex-1 border border-white/5">
+                  <div class="text-xs font-semibold text-gray-200">输入</div>
+                  <div class="mt-1 text-[10px] text-gray-500">世界观 · 角色卡 · 事件库</div>
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-600"></i>
+                <div class="glass-card p-3 flex-1 border border-white/5">
+                  <div class="text-xs font-semibold text-gray-200">产出</div>
+                  <div class="mt-1 text-[10px] text-gray-500">文 · 音 · 图 · 动</div>
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-600"></i>
+                <div class="glass-card p-3 flex-1 border border-white/5">
+                  <div class="text-xs font-semibold text-gray-200">映射</div>
+                  <div class="mt-1 text-[10px] text-gray-500">节日包 · 剧场包 · 联名</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2">
+              <div class="glass-card p-3 text-center">
+                <div class="mini-title">每日</div>
+                <div class="mt-1 text-xs text-gray-200 font-semibold">日记卡</div>
+              </div>
+              <div class="glass-card p-3 text-center">
+                <div class="mini-title">每周</div>
+                <div class="mt-1 text-xs text-gray-200 font-semibold">节日/事件链</div>
+              </div>
+              <div class="glass-card p-3 text-center">
+                <div class="mini-title">每季</div>
+                <div class="mt-1 text-xs text-gray-200 font-semibold">新节日包/新线</div>
+              </div>
+            </div>
+          </div>
+        `,
+        supports:"流水线 + 频率三卡 · 合作交付可复用、可季更"
+      },
+
+      {
+        id:"13",
+        title:"付费逻辑",
+        conclusion:"卖人生体验，不卖模型智商；天然适配季更订阅",
+        sub:[
+          "默认高质量模型保证沉浸",
+          "更长更深的记忆与关系线",
+          "更多对话资源与高级体验：多角色同台、语音、关键帧额度",
+          "道具送礼、改变设定、解锁番外事件",
+          "仅付费可进入的限定互动剧场"
+        ],
+        visual: `
+          <div class="flex-1 flex flex-col justify-center gap-3">
+            <div class="grid grid-cols-3 gap-2">
+              <div class="glass-card p-3 border border-white/5">
+                <div class="mini-title">基础票</div>
+                <div class="mt-1 text-sm text-gray-200 font-semibold">入场</div>
+                <div class="mt-2 text-[10px] text-gray-500">体验核心世界</div>
+              </div>
+              <div class="glass-card p-3 border border-indigo-500/30 bg-indigo-500/10">
+                <div class="mini-title text-indigo-300">季票</div>
+                <div class="mt-1 text-sm text-indigo-100 font-semibold">深体验</div>
+                <div class="mt-2 text-[10px] text-indigo-200/70">关系线与番外</div>
+              </div>
+              <div class="glass-card p-3 border border-white/5">
+                <div class="mini-title">限定票</div>
+                <div class="mt-1 text-sm text-gray-200 font-semibold">首演</div>
+                <div class="mt-2 text-[10px] text-gray-500">限定剧场</div>
+              </div>
+            </div>
+
+            <div class="glass-card p-4 border border-white/5">
+              <div class="mini-title">资源条</div>
+              <div class="mt-2 space-y-3">
+                <div>
+                  <div class="flex items-center justify-between text-[10px] text-gray-500">
+                    <span>记忆容量</span><span>提升体验上限</span>
+                  </div>
+                  <div class="mt-1 progress-bar"><div class="progress-fill" style="width:78%"></div></div>
+                </div>
+                <div>
+                  <div class="flex items-center justify-between text-[10px] text-gray-500">
+                    <span>对话资源</span><span>更深更长的互动</span>
+                  </div>
+                  <div class="mt-1 progress-bar"><div class="progress-fill" style="width:68%"></div></div>
+                </div>
+                <div>
+                  <div class="flex items-center justify-between text-[10px] text-gray-500">
+                    <span>语音/关键帧</span><span>沉浸增强</span>
+                  </div>
+                  <div class="mt-1 progress-bar"><div class="progress-fill" style="width:56%"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `,
+        supports:"三档售票亭 + 资源条 · 付费买的是关系深度与剧情容量"
+      },
+
+      {
+        id:"14",
+        title:"内容运营",
+        conclusion:"季更机制是长线现金流结构，不是活动",
+        sub:[
+          "每季更新：人物人生新要素、关系网变化、新节日、新剧情线",
+          "策略：免费保热度，付费给深体验与限定剧场",
+          "传播：日记与高光分享形成自然扩散",
+          "数据占位：本季新增 X 节日包 / Y 事件链 / Z 人生变化",
+          "目标占位：续订率、分享率、转化率"
+        ],
+        visual: `
+          <div class="flex-1 flex flex-col justify-center gap-3">
+            <div class="glass-card p-4 border border-indigo-500/15">
+              <div class="mini-title">春夏秋冬时间轴</div>
+              <div class="mt-3 grid grid-cols-4 gap-2">
+                <div class="glass-card p-3">
+                  <div class="text-xs font-semibold text-gray-200">春</div>
+                  <div class="mt-1 text-[10px] text-gray-500">新节日包</div>
+                  <div class="mt-1 text-[10px] text-gray-500">新支线</div>
+                </div>
+                <div class="glass-card p-3">
+                  <div class="text-xs font-semibold text-gray-200">夏</div>
+                  <div class="mt-1 text-[10px] text-gray-500">关系变化</div>
+                  <div class="mt-1 text-[10px] text-gray-500">伏笔回收</div>
+                </div>
+                <div class="glass-card p-3">
+                  <div class="text-xs font-semibold text-gray-200">秋</div>
+                  <div class="mt-1 text-[10px] text-gray-500">新角色线</div>
+                  <div class="mt-1 text-[10px] text-gray-500">大事件</div>
+                </div>
+                <div class="glass-card p-3">
+                  <div class="text-xs font-semibold text-gray-200">冬</div>
+                  <div class="mt-1 text-[10px] text-gray-500">限定剧场</div>
+                  <div class="mt-1 text-[10px] text-gray-500">订阅续期</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div class="glass-card p-3">
+                <div class="mini-title">免费</div>
+                <div class="mt-1 text-[10px] text-gray-400">节日参与 · 日记分享</div>
+                <div class="mt-2 h-2 bg-gray-900 rounded-full overflow-hidden">
+                  <div class="h-full bg-gray-600" style="width:70%"></div>
+                </div>
+              </div>
+              <div class="glass-card p-3 border border-indigo-500/20 bg-indigo-500/10">
+                <div class="mini-title text-indigo-300">付费</div>
+                <div class="mt-1 text-[10px] text-indigo-200/70">深关系线 · 限定剧场</div>
+                <div class="mt-2 h-2 bg-gray-900 rounded-full overflow-hidden">
+                  <div class="h-full bg-indigo-500" style="width:55%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `,
+        supports:"季更时间轴 + 免费/付费分层 · 指标占位：续订率/分享率/转化率"
+      },
+
+      {
+        id:"15",
+        title:"技术落地",
+        conclusion:"不从零训练大模型，我们做系统层：会演戏、会记得、可评测",
+        sub:[
+          "角色卡与世界观知识库：稳定人设与事实一致",
+          "记忆系统：短期/长期/事件记忆，支持回调与延续",
+          "事件引擎：状态机 + 叙事规划 + 安全约束",
+          "评测体系：沉浸感、跑偏率、复玩率、转化率",
+          "风险控制条：安全、一致性、成本"
+        ],
+        visual: `
+          <div class="flex-1 flex flex-col justify-center gap-3">
+            <div class="glass-card p-4 border border-indigo-500/15">
+              <div class="mini-title">四层架构</div>
+              <div class="mt-3 space-y-2">
+                <div class="h-7 rounded bg-indigo-900/20 border-l-2 border-indigo-500 flex items-center px-3 text-[10px] text-gray-200">
+                  Layer 4：安全约束
+                </div>
+                <div class="h-7 rounded bg-indigo-900/35 border-l-2 border-indigo-500 flex items-center px-3 text-[10px] text-gray-200">
+                  Layer 3：事件引擎
+                </div>
+                <div class="h-7 rounded bg-indigo-900/50 border-l-2 border-indigo-500 flex items-center px-3 text-[10px] text-gray-200">
+                  Layer 2：记忆系统
+                </div>
+                <div class="h-7 rounded bg-indigo-900/65 border-l-2 border-indigo-500 flex items-center px-3 text-[10px] text-gray-200">
+                  Layer 1：角色卡/世界观
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2">
+              <div class="glass-card p-3 text-center">
+                <div class="mini-title">跑偏率</div>
+                <div class="mt-1 font-num text-lg font-bold text-indigo-300">KPI</div>
+              </div>
+              <div class="glass-card p-3 text-center">
+                <div class="mini-title">复玩率</div>
+                <div class="mt-1 font-num text-lg font-bold text-indigo-300">KPI</div>
+              </div>
+              <div class="glass-card p-3 text-center">
+                <div class="mini-title">转化率</div>
+                <div class="mt-1 font-num text-lg font-bold text-indigo-300">KPI</div>
+              </div>
+            </div>
+          </div>
+        `,
+        supports:"四层架构剖面图 + KPI 占位卡 · 风险：安全/一致性/成本"
+      },
+
+      {
+        id:"15A",
+        title:"初期落地路径",
+        conclusion:"第一阶段不做从零训练，用 API + 系统约束把模型变成可控导演",
+        sub:[
+          "API：主模型 + 工具调用，把输出锁成结构化结果",
+          "人物训练三层：角色卡 JSON、记忆、评测集",
+          "事件引擎最简法：事件标准件 → 离线事件库 → 上线检索填充",
+          "三道强校验：世界观一致性、角色边界、安全规则",
+          "4 周交付：从世界观与角色卡到 7 天游玩闭环验收"
+        ],
+        visual: `
+          <div class="flex-1 flex flex-col justify-center gap-3">
+            <div class="glass-card p-4 border border-indigo-500/15">
+              <div class="mini-title">端到端管线</div>
+              <div class="mt-3 grid grid-cols-5 gap-2 text-[10px]">
+                <div class="glass-card p-2 text-center border border-white/5">角色卡</div>
+                <div class="glass-card p-2 text-center border border-white/5">记忆</div>
+                <div class="glass-card p-2 text-center border border-white/5">事件库</div>
+                <div class="glass-card p-2 text-center border border-white/5">选择器</div>
+                <div class="glass-card p-2 text-center border border-white/5">日记</div>
+              </div>
+              <div class="mt-2 text-[10px] text-gray-500">结构化输出 + 校验器保证可控与一致</div>
+            </div>
+
+            <div class="glass-card p-4 border border-white/5">
+              <div class="mini-title">4 周里程碑</div>
+              <div class="mt-3 space-y-2">
+                <div class="flex items-center gap-2">
+                  <div class="w-10 text-[10px] text-gray-500 font-num">W1</div>
+                  <div class="flex-1 h-2 bg-gray-900 rounded-full overflow-hidden">
+                    <div class="h-full bg-indigo-500" style="width:25%"></div>
+                  </div>
+                  <div class="text-[10px] text-gray-400">世界观/10 角色/节日框架</div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <div class="w-10 text-[10px] text-gray-500 font-num">W2</div>
+                  <div class="flex-1 h-2 bg-gray-900 rounded-full overflow-hidden">
+                    <div class="h-full bg-indigo-500" style="width:50%"></div>
+                  </div>
+                  <div class="text-[10px] text-gray-400">记忆系统/事件标准件/事件库</div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <div class="w-10 text-[10px] text-gray-500 font-num">W3</div>
+                  <div class="flex-1 h-2 bg-gray-900 rounded-full overflow-hidden">
+                    <div class="h-full bg-indigo-500" style="width:75%"></div>
+                  </div>
+                  <div class="text-[10px] text-gray-400">事件选择器/关系变更/分享链路</div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <div class="w-10 text-[10px] text-gray-500 font-num">W4</div>
+                  <div class="flex-1 h-2 bg-gray-900 rounded-full overflow-hidden">
+                    <div class="h-full bg-indigo-500" style="width:100%"></div>
+                  </div>
+                  <div class="text-[10px] text-gray-400">连续 7 天游玩闭环验收</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `,
+        supports:"API + 结构化输出 + 校验器 · 事件先离线生成库，上线检索填充"
+      },
+
+      {
+        id:"16",
+        title:"里程碑",
+        conclusion:"每一步都能拿出可体验、可展示、可复用的资产",
+        sub:[
+          "阶段 A：可玩 Demo，连续 7 天游玩闭环",
+          "阶段 B：封闭测试与商业化验证，至少 2 个付费点跑通转化",
+          "阶段 C：季更生产线与第二剧场，模板可复用",
+          "验收讲结果，不讲死时间",
+          "每阶段都有可展示清单与指标"
+        ],
+        visual: `
+          <div class="flex-1 flex flex-col justify-center gap-3">
+            <div class="glass-card p-4 border border-indigo-500/15">
+              <div class="mini-title">阶段阶梯</div>
+              <div class="mt-3 flex items-end gap-2">
+                <div class="flex-1 glass-card p-3 h-20 border border-white/5">
+                  <div class="text-xs font-semibold text-gray-200">A</div>
+                  <div class="mt-1 text-[10px] text-gray-500">7 天游玩闭环</div>
+                </div>
+                <div class="flex-1 glass-card p-3 h-28 border border-white/5">
+                  <div class="text-xs font-semibold text-gray-200">B</div>
+                  <div class="mt-1 text-[10px] text-gray-500">2 付费点转化</div>
+                </div>
+                <div class="flex-1 glass-card p-3 h-36 border border-indigo-500/30 bg-indigo-500/10">
+                  <div class="text-xs font-semibold text-indigo-200">C</div>
+                  <div class="mt-1 text-[10px] text-indigo-200/70">季更 + 第二剧场</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2">
+              <div class="glass-card p-3 text-center">
+                <div class="mini-title">状态</div>
+                <div class="mt-1 text-[10px] text-gray-300">通过</div>
+              </div>
+              <div class="glass-card p-3 text-center">
+                <div class="mini-title">状态</div>
+                <div class="mt-1 text-[10px] text-gray-300">进行中</div>
+              </div>
+              <div class="glass-card p-3 text-center">
+                <div class="mini-title">状态</div>
+                <div class="mt-1 text-[10px] text-gray-300">待解锁</div>
+              </div>
+            </div>
+          </div>
+        `,
+        supports:"阶段 A/B/C 阶梯图 · 状态灯占位 · 每阶段可展示清单"
+      },
+
+      {
+        id:"17",
+        title:"行动号召",
+        conclusion:"把聊天升级为互动人生剧场，从第一座小镇开始开演",
+        sub:[
+          "我们做的是会长大的世界，不是一次性剧情",
+          "我们做的是可运营的连续剧，不是无限闲聊",
+          "第一站：星露谷式小镇模板",
+          "现在开放：品牌联名 / 内容联合出品 / 渠道联运",
+          "开演，从这一座小镇开始"
+        ],
+        visual: `
+          <div class="flex-1 flex flex-col items-center justify-center gap-4">
+            <div class="w-full glass-card p-5 border border-indigo-500/20 relative overflow-hidden">
+              <div class="absolute inset-0 opacity-60"
+                style="background:
+                  radial-gradient(520px 240px at 30% 20%, rgba(99,102,241,0.25), transparent 60%),
+                  radial-gradient(520px 260px at 70% 80%, rgba(168,85,247,0.16), transparent 60%);">
+              </div>
+
+              <div class="relative">
+                <div class="text-center">
+                  <div class="text-2xl font-black neon-text text-indigo-200 tracking-tight">NOW SHOWING</div>
+                  <div class="mt-2 text-sm text-gray-200 font-semibold">互动人生剧场</div>
+                  <div class="mt-1 text-[10px] text-gray-500">从小镇第一幕开始</div>
+                </div>
+
+                <div class="mt-5 grid grid-cols-3 gap-2">
+                  <button class="glass-card py-3 text-xs font-semibold border border-white/10">品牌联名</button>
+                  <button class="glass-card py-3 text-xs font-semibold border border-white/10">联合出品</button>
+                  <button class="glass-card py-3 text-xs font-semibold border border-white/10">渠道联运</button>
+                </div>
+
+                <div class="mt-5 flex items-center justify-center">
+                  <div class="bg-indigo-600 px-10 py-3 rounded-full font-semibold shadow-[0_0_24px_rgba(99,102,241,0.55)]">
+                    立刻开演
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `,
+        supports:"像素烟花 + 小镇夜景氛围 · 三入口按钮 + 主 CTA"
+      }
+    ];
+
+    const container = document.getElementById('scroll-container');
+    const pageIndicator = document.getElementById('page-current');
+
+    slides.forEach((slide, index) => {
+      const section = document.createElement('section');
+      section.className = 'snap-section';
+      section.id = `page-${index}`;
+
+      section.innerHTML = `
+        <div class="halo"></div>
+
+        <!-- 标题区 -->
+        <div class="h-[12%] flex flex-col justify-end reveal relative">
+          <div class="flex items-center gap-2">
+            <span class="font-num text-indigo-500 text-xs font-bold">${slide.id}</span>
+            <h2 class="text-lg font-bold tracking-tight">${slide.title}</h2>
+          </div>
+          <p class="text-indigo-300 text-xs mt-1 font-medium leading-tight">${slide.conclusion}</p>
+        </div>
+
+        <!-- 主视觉区 -->
+        <div class="h-[55%] flex flex-col py-3 reveal relative" style="transition-delay:0.08s">
+          ${slide.visual}
+          <div class="mt-3 space-y-1">
+            ${slide.sub.map(t => `<p class="text-gray-400 text-[11px] font-light leading-tight">· ${t}</p>`).join('')}
+          </div>
+        </div>
+
+        <!-- 支撑点区 -->
+        <div class="h-[25%] flex flex-col justify-center gap-3 reveal relative" style="transition-delay:0.16s">
+          <div class="h-px bg-white/10 w-full"></div>
+          <div class="text-[10px] text-gray-500 font-medium tracking-wider uppercase text-center bg-white/5 py-3 rounded italic">
+            ${slide.supports}
+          </div>
+        </div>
+
+        <!-- 口径区 -->
+        <div class="h-[8%] flex items-end justify-end relative">
+          <span class="text-[8px] text-gray-700 font-num tracking-tighter">INTERNAL STRATEGY DATA v2.6</span>
+        </div>
+      `;
+
+      container.appendChild(section);
+    });
+
+    // 滚动更新页码 + 触发动画
+    container.addEventListener('scroll', () => {
+      const index = Math.round(container.scrollTop / window.innerHeight);
+      const safeIndex = Math.max(0, Math.min(index, slides.length - 1));
+      pageIndicator.innerText = slides[safeIndex].id;
+
+      document.querySelectorAll('.snap-section').forEach((s, i) => {
+        if (i === safeIndex) s.classList.add('active');
+        else s.classList.remove('active');
+      });
+    });
+
+    // 初始化
+    lucide.createIcons();
+    const first = document.querySelector('.snap-section');
+    if (first) first.classList.add('active');
+  </script>
+</body>
+</html>
