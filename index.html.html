@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>可玩的AI互动剧场 - 商业路演 PPT</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+    /* =========================================
+      Base reset & system tokens
+    ========================================= */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: #050505;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    }
+
+    :root{
+      /* Titanium dark palette */
+      --bg: #000000;
+      --surface-1: #111111;
+      --surface-2: #1c1c1e;
+      --glass: rgba(28, 28, 30, 0.7);
+
+      --text-1: #ffffff;
+      --text-2: #a1a1aa;
+      --text-3: #636366;
+
+      --blue: #0A84FF;
+      --purple: #BF5AF2;
+      --success: #32D74B;
+      --warning: #FFD60A;
+      --danger: #FF453A;
+      --grad: linear-gradient(135deg, #0A84FF 0%, #BF5AF2 100%);
+
+      --border: rgba(255,255,255,0.10);
+
+      --radius-lg: 20px;
+      --radius-md: 16px;
+      --radius-sm: 10px;
+
+      --pad-x: 24px;
+      --pad-top: calc(50px + env(safe-area-inset-top));
+      --pad-bottom: calc(80px + env(safe-area-inset-bottom));
+    }
+
+    /* =========================================
+      Mockup shell
+    ========================================= */
+    .mockup {
+      width: 100%;
+      max-width: 430px;              /* iPhone Pro Max width */
+      height: 100dvh;
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Desktop “device frame” feel */
+    @media (min-height: 940px) and (min-width: 520px) {
+      .mockup {
+        height: 90vh;
+        max-height: 932px;
+        border-radius: 40px;
+        border: 8px solid #222;
+      }
+    }
+
+    .bg-fx {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 50% -20%, rgba(10, 132, 255, 0.15), transparent 60%),
+        radial-gradient(circle at 50% 120%, rgba(191, 90, 242, 0.15), transparent 60%);
+    }
+
+    /* =========================================
+      Slider (vertical)
+    ========================================= */
+    .slider {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      width: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .slider::-webkit-scrollbar { display: none; }
+
+    /* =========================================
+      Slide layout
+    ========================================= */
+    .slide {
+      width: 100%;
+      min-height: 100dvh;
+      scroll-snap-align: start;
+      padding: var(--pad-top) var(--pad-x) var(--pad-bottom);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .slide__inner {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 16px;
+      min-height: calc(100dvh - var(--pad-top) - var(--pad-bottom));
+    }
+    .slide__header { margin-bottom: 8px; }
+    .slide__body { display: flex; flex-direction: column; gap: 16px; }
+
+    /* =========================================
+      Typography
+    ========================================= */
+    h1, h2, h3 { margin: 0; letter-spacing: 0.5px; word-break: keep-all; }
+    p { margin: 0; line-height: 1.6; word-break: break-word; }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-2);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .tag::before {
+      content: "";
+      width: 12px;
+      height: 2px;
+      background: var(--text-2);
+      display: inline-block;
+      border-radius: 2px;
+    }
+
+    .title {
+      font-size: 30px;
+      line-height: 1.3;
+      font-weight: 700;
+      background: linear-gradient(180deg, #FFFFFF 0%, #A1A1AA 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-top: 8px;
+    }
+
+    .desc {
+      color: var(--text-2);
+      font-size: 15px;
+      font-weight: 300;
+    }
+
+    .center { text-align: center; }
+    .muted { color: var(--text-2); }
+    .muted-2 { color: var(--text-3); }
+    .strong { font-weight: 600; }
+    .accent-blue { color: var(--blue); }
+    .accent-purple { color: var(--purple); }
+    .accent-success { color: var(--success); }
+    .accent-warning { color: var(--warning); }
+    .accent-danger { color: var(--danger); }
+
+    /* =========================================
+      Components
+    ========================================= */
+    .card {
+      border-radius: var(--radius-lg);
+      border: 0.5px solid var(--border);
+      background: var(--surface-2);
+      padding: 24px;
+    }
+    .card--glass {
+      background: var(--glass);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+    .card--soft {
+      background: rgba(255,255,255,0.03);
+      border-color: rgba(255,255,255,0.06);
+    }
+
+    .stack { display: flex; flex-direction: column; gap: 16px; }
+    .row { display: flex; align-items: center; gap: 16px; }
+    .row--top { align-items: flex-start; }
+
+    .pill-tags { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface-2);
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-1);
+    }
+
+    .iconbox {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,0.04);
+      border: 0.5px solid rgba(255,255,255,0.08);
+      flex: 0 0 auto;
+    }
+
+    .hint-box {
+      margin-top: 8px;
+      padding: 20px;
+      border-radius: var(--radius-md);
+      background: rgba(255,255,255,0.03);
+    }
+
+    /* Cover */
+    .cover-title {
+      font-size: 48px;
+      line-height: 1.15;
+      font-weight: 900;
+      margin-top: 6px;
+    }
+    .cover-gradient {
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-icons {
+      display: flex;
+      gap: 16px;
+      margin: 18px 0 4px;
+      font-size: 44px;
+      color: rgba(255,255,255,0.92);
+    }
+    .hero-icons i:nth-child(1) { color: var(--blue); }
+    .hero-icons i:nth-child(2) { color: var(--purple); }
+    .hero-icons i:nth-child(3) { color: var(--success); }
+
+    /* Flow */
+    .flow {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .flow-node {
+      background: var(--surface-2);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      text-align: center;
+      font-weight: 500;
+      font-size: 15px;
+    }
+    .flow-node--highlight {
+      border-color: rgba(191, 90, 242, 0.55);
+      background: rgba(191, 90, 242, 0.05);
+    }
+    .flow-node--dashed { border-style: dashed; }
+    .flow-arrow {
+      text-align: center;
+      color: var(--text-2);
+      font-size: 16px;
+      margin: 8px 0;
+    }
+
+    /* Layers */
+    .layer {
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-bottom: 12px;
+      border-left: 4px solid;
+      background: var(--surface-2);
+      border-top: 0.5px solid var(--border);
+      border-right: 0.5px solid var(--border);
+      border-bottom: 0.5px solid var(--border);
+    }
+    .layer--1 { border-left-color: var(--purple); }
+    .layer--2 { border-left-color: var(--blue); }
+    .layer--3 { border-left-color: var(--success); }
+
+    /* VS */
+    .vs-card {
+      background: var(--surface-2);
+      padding: 20px;
+      border-radius: var(--radius-md);
+      border: 0.5px solid var(--border);
+    }
+    .vs-card + .vs-card { margin-top: 14px; }
+    .vs-card--winner {
+      background: rgba(10, 132, 255, 0.08);
+      border: 1px solid rgba(10, 132, 255, 0.9);
+      margin-top: 24px;
+    }
+    .vs-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .badge {
+      font-size: 11px;
+      background: var(--blue);
+      color: #fff;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .vs-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 12px;
+      font-size: 14px;
+      border-top: 0.5px solid rgba(255,255,255,0.05);
+      padding-top: 12px;
+    }
+
+    /* Timeline */
+    .timeline {
+      border-left: 1px solid rgba(255,255,255,0.2);
+      margin-left: 8px;
+      padding-left: 24px;
+    }
+    .tl-item { position: relative; margin-bottom: 32px; }
+    .tl-dot {
+      position: absolute;
+      left: -29px;
+      top: 4px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 2px solid var(--text-1);
+    }
+
+    /* Grid cards */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .grid-card {
+      text-align: center;
+      padding: 24px 16px;
+    }
+    .grid-card i { font-size: 28px; color: var(--text-1); margin-bottom: 12px; display: inline-block; }
+
+    /* Callout */
+    .callout {
+      margin-top: 8px;
+      padding: 16px;
+      border-left: 3px solid var(--warning);
+      background: rgba(255, 214, 10, 0.05);
+      border-radius: 12px;
+    }
+    .callout__title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--warning);
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .callout__desc { margin-top: 8px; font-size: 14px; color: var(--text-2); }
+
+    /* =========================================
+      Motion (IntersectionObserver)
+    ========================================= */
+    .anim { opacity: 0; transform: translateY(24px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+    .slide.is-active .anim { opacity: 1; transform: translateY(0); }
+    .d1 { transition-delay: .10s; } .d2 { transition-delay: .20s; }
+    .d3 { transition-delay: .30s; } .d4 { transition-delay: .40s; } .d5 { transition-delay: .50s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .anim, .slide.is-active .anim { opacity: 1 !important; transform: none !important; transition: none !important; }
+      .scroll-hint { animation: none !important; }
+    }
+
+    /* =========================================
+      Progress dots + scroll hint
+    ========================================= */
+    .progress {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 10;
+      pointer-events: auto;
+      user-select: none;
+    }
+    .dot {
+      width: 3px;
+      height: 12px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+    .dot[aria-current="true"] {
+      height: 32px;
+      background: var(--text-1);
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-3);
+      z-index: 10;
+      letter-spacing: 1px;
+      animation: bounceY 2s infinite;
+      pointer-events: none;
+    }
+    @keyframes bounceY {
+      0%, 100% { transform: translate(-50%, 0); }
+      50%      { transform: translate(-50%, -8px); }
+    }
+
+    /* =========================================
+      Print (PDF export)
+    ========================================= */
+    @media print {
+      body { height: auto; overflow: visible; background: #ffffff !important; color: #000000 !important; }
+      .mockup { width: 100%; max-width: none; height: auto; box-shadow: none; border: none; border-radius: 0; background: #ffffff; }
+      .bg-fx, .progress, .scroll-hint { display: none !important; }
+      .slider { overflow: visible; display: block; }
+      .slide {
+        min-height: 100vh;
+        break-after: page;
+        break-inside: avoid;
+        padding: 40px;
+        border-bottom: 1px solid #eee;
+      }
+      .title { background: none; -webkit-text-fill-color: #000; color: #000; }
+      .card, .pill, .layer, .vs-card, .flow-node {
+        background: #f8f9fa !important;
+        border: 1px solid #dee2e6 !important;
+        color: #333 !important;
+      }
+      .desc, .tag, .muted, .muted-2 { color: #666 !important; }
+      .cover-gradient { background: none; -webkit-text-fill-color: #0A84FF; color: #0A84FF; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="mockup" role="main" aria-label="路演 H5">
+    <div class="bg-fx" aria-hidden="true"></div>
+
+    <div class="slider" id="slider" aria-label="垂直滑动演示">
+      <!-- P01 Cover -->
+      <section class="slide is-active" data-index="0" aria-label="第 1 页：我们在做什么">
+        <div class="slide__inner">
+          <header class="slide__header">
+            <div class="tag anim">01 / 我们在做什么</div>
+          </header>
+
+          <h1 class="cover-title anim d1">
+            可玩的<br><span class="cover-gradient">AI 互动剧场</span>
+          </h1>
+
+          <div class="hero-icons anim d2" aria-hidden="true">
+            <i class="fa-solid fa-gamepad"></i>
+            <i class="fa-solid fa-masks-theater"></i>
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+          </div>
+
+          <div class="card card--glass anim d3">
+            <p class="muted" style="font-size: 16px; margin-bottom: 12px; font-weight: 300;">
+              我们不是在做一个聊天机器人，也不是做一个普通的休闲游戏。
+            </p>
+            <p style="font-size: 16px; color: var(--text-1); font-weight: 500;">
+              我们在创造一个新物种：把 AI 陪伴放进一个“可以玩的世界”。
+            </p>
+          </div>
+
+          <div class="hint-box anim d4">
+            <p class="center" style="font-size: 16px; font-weight: 600; color: var(--text-1); line-height: 1.8;">
+              <span class="accent-blue">游戏负责吸引</span><br />
+              <span class="accent-purple">互动负责沉淀</span><br />
+              <span class="accent-success">关系负责留存</span>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- P02 Market -->
+      <section class="slide" data-index="1" aria-label="第 2 页：市场洞察">
+        <div class="slide__inner">
+          <header class="slide__header">
+            <div class="tag anim">02 / 市场洞察</div>
+            <h2 class="title anim d1">AI 陪伴需求已被验证</h2>
+          </header>
+
+          <p class="desc anim d2">过去两年，头部产品已经证明真实且庞大的用户诉求存在：</p>
+
+          <div class="pill-tags anim d3" aria-label="代表性产品">
+            <span class="pill"><i class="fa-solid fa-robot" style="color:var(--blue)"></i> Character.AI</span>
+            <span class="pill"><i class="fa-solid fa-heart" style="color:var(--purple)"></i> Replika</span>
+            <span class="pill"><i class="fa-solid fa-fire" style="color:var(--warning)"></i> CrushOn</span>
+          </div>
+
+          <div class="card card--glass anim d4">
+            <div class="row" style="margin-bottom: 20px;">
+              <div class="iconbox" aria-hidden="true"><i class="fa-solid fa-chart-line" style="color:var(--blue)"></i></div>
+              <div>
+                <div class="strong" style="font-size: 16px;">用户使用时长极高</div>
+                <div class="muted" style="font-size: 13px; margin-top: 4px;">深度用户日均耗时数十分钟</div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="iconbox" aria-hidden="true"><i class="fa-solid fa-hand-holding-dollar" style="color:var(--purple)"></i></div>
+              <div>
+                <div class="strong" style="font-size: 16px;">强烈的情绪粘性</div>
+                <div class="muted" style="font-size: 13px; margin-top: 4px;">愿意为“被理解”持续付费</div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="callout anim d5" role="note" aria-label="核心痛点">
+            <div class="callout__title"><i class="fa-solid fa-triangle-exclamation"></i> 但存在核心痛点</div>
+            <div class="callout__desc">
+              增长不稳定，留存高度依赖个别核心受众。需求成立，但
+              <span class="strong" style="color:var(--text-1)">产品结构还不成熟</span>。
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- P03 Chat ceiling -->
+      <section class="slide" data-index="2" aria-label="第 3 页：行业痛点">
+        <div class="slide__inner">
+          <header class="slide__header">
+            <div class="tag anim">03 / 行业痛点</div>
+            <h2 class="title anim d1">纯对话框的天花板</h2>
+          </header>
+
+          <p class="desc anim d2">当前“工具型” AI 陪伴产品面临三个致命缺陷：</p>
+
+          <div class="stack">
+            <div class="card card--glass anim d3" style="padding: 20px;">
+              <div class="row">
+                <div class="iconbox" aria-hidden="true"><i class="fa-solid fa-bullseye" style="color:var(--warning)"></i></div>
+                <div>
+                  <div class="strong" style="font-size: 16px;">没有明确目标</div>
+                  <div class="muted" style="font-size: 13px; margin-top: 4px;">用户每天上线“不知道该干什么”</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card card--glass anim d4" style="padding: 20px;">
+              <div class="row">
+                <div class="iconbox" aria-hidden="true"><i class="fa-solid fa-chart-simple" style="color:var(--blue)"></i></div>
+                <div>
+                  <div class="strong" style="font-size: 16px;">没有阶段推进</div>
+                  <div class="muted" style="font-size: 13px; margin-top: 4px;">关系始终扁平，缺乏清晰的成长路径</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card card--glass anim d5" style="padding: 20px;">
+              <div class="row">
+                <div class="iconbox" aria-hidden="true"><i class="fa-solid fa-battery-three-quarters" style="color:var(--success)"></i></div>
+                <div>
+                  <div class="strong" style="font-size: 16px;">缺少驱动力</div>
+                  <div class="muted" style="font-size: 13px; margin-top: 4px;">发消息无成本，反馈太易得而失去价值感</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="anim d5 center" style="margin-top: 8px;">
+            <p class="muted-2" style="font-size: 13px;">典型流失漏斗</p>
+            <p class="strong" style="color: var(--danger); margin-top: 8px; font-size: 15px;">
+              第一周尝鲜 ➔ 第二周无聊 ➔ 第三周流失
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- P04 Casual games -->
+      <section class="slide" data-index="3" aria-label="第 4 页：另一块拼图">
+        <div class="slide__inner">
+          <header class="slide__header">
+            <div class="tag anim">04 / 另一块拼图</div>
+            <h2 class="title anim d1">休闲游戏：超级流量引擎</h2>
+          </header>
+
+          <p class="desc anim d2">移动端最成熟的商业模型，却也有短板。</p>
+
+          <div class="card card--glass anim d3">
+            <h3 style="color: var(--success); font-size: 16px; margin-bottom: 16px;">
+              <i class="fa-solid fa-rocket"></i> 压倒性优势
+            </h3>
+            <ul style="list-style: none; padding: 0; margin: 0; font-size: 14px; color: var(--text-2); line-height: 2;">
+              <li><i class="fa-solid fa-check" style="color:var(--success); margin-right:8px; width:16px;"></i>玩法理解成本极低</li>
+              <li><i class="fa-solid fa-check" style="color:var(--success); margin-right:8px; width:16px;"></i>买量 (CPI) 模型高度成熟</li>
+              <li><i class="fa-solid fa-check" style="color:var(--success); margin-right:8px; width:16px;"></i>变现 (IAA/IAP) 路径清晰</li>
+            </ul>
+          </div>
+
+          <div class="card card--glass anim d4">
+            <h3 style="color: var(--danger); font-size: 16px; margin-bottom: 16px;">
+              <i class="fa-solid fa-heart-crack"></i> 难以逾越的短板
+            </h3>
+            <ul style="list-style: none; padding: 0; margin: 0; font-size: 14px; color: var(--text-2); line-height: 2;">
+              <li><i class="fa-solid fa-xmark" style="color:var(--danger); margin-right:8px; width:16px;"></i>情绪沉淀极浅，用完即走</li>
+              <li><i class="fa-solid fa-xmark" style="color:var(--danger); margin-right:8px; width:16px;"></i>角色关系薄弱，难生羁绊</li>
+              <li><i class="fa-solid fa-xmark" style="color:var(--danger); margin-right:8px; width:16px;"></i>生命周期 (LTV) 上限明显</li>
+            </ul>
+          </div>
+
+          <p class="anim d5 center strong" style="margin-top: 4px; font-size: 15px; color: var(--text-1);">
+            游戏负责解决<span class="accent-blue">流量问题</span><br />
+            但急需补充<span class="accent-purple">情绪深度</span>。
+          </p>
+        </div>
+      </section>
+
+      <!-- P05 Loop -->
+      <section class="slide" data-index="4" aria-label="第 5 页：核心方案">
+        <div class="slide__inner">
+          <header class="slide__header">
+            <div class="tag anim">05 / 核心方案</div>
+            <h2 class="title anim d1">结构级融合：超级闭环</h2>
+          </header>
+
+          <p class="desc anim d2">不是生硬拼接，而是系统资源的有机流转：</p>
+
+          <div class="flow anim d3" aria-label="闭环流程">
+            <div class="flow-node">
+              <i class="fa-solid fa-gamepad" style="color:var(--blue)"></i> 游玩轻量小游戏
+            </div>
+            <div class="flow-arrow"><i class="fa-solid fa-arrow-down"></i> 产出资源</div>
+
+            <div class="flow-node">
+              <i class="fa-solid fa-unlock-keyhole" style="color:var(--warning)"></i> 消耗资源解锁对话/剧情
+            </div>
+            <div class="flow-arrow"><i class="fa-solid fa-arrow-down"></i> 产生情绪</div>
+
+            <div class="flow-node flow-node--highlight">
+              <i class="fa-solid fa-heart" style="color:var(--purple)"></i> 推进角色好感度与关系
+            </div>
+            <div class="flow-arrow"><i class="fa-solid fa-arrow-down"></i> 渴望更多</div>
+
+            <div class="flow-node flow-node--dashed">
+              <i class="fa-solid fa-rotate-left" style="color:var(--text-2)"></i> 带着目标回到游戏
+            </div>
+          </div>
+
+          <div class="anim d4 center" style="margin-top: 8px;">
+            <p style="font-size: 15px; color: var(--text-2); line-height: 1.6;">
+              结果是颠覆性的：<br />
+              用户不再是机械地“刷关卡”，<br />
+              而是在<span class="strong" style="color:var(--text-1);">为一段关系投入与付出</span>。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- P06 Form -->
+      <section class="slide" data-index="5" aria-label="第 6 页：产品形态">
+        <div class="slide__inner">
+          <header class="slide__header">
+            <div class="tag anim">06 / 产品形态</div>
+            <h2 class="title anim d1">何为“互动剧场”？</h2>
+          </header>
+
+          <div class="anim d2 center" style="margin-bottom: 8px;">
+            <p style="font-size: 16px; font-weight: 500; color: var(--text-1);">
+              一个动态展开的沉浸式世界，<br />
+              绝不只是一个空洞的聊天框。
+            </p>
+          </div>
+
+          <div class="stack">
+            <div class="card card--glass anim d3" style="padding: 16px 20px;">
+              <p class="strong" style="font-size: 15px;"><i class="fa-solid fa-earth-asia" style="color:var(--blue); width:24px;"></i> 具备统一的世界观背景</p>
+            </div>
+            <div class="card card--glass anim d4" style="padding: 16px 20px;">
+              <p class="strong" style="font-size: 15px;"><i class="fa-solid fa-users" style="color:var(--success); width:24px;"></i> 多角色协同与网状社交</p>
+            </div>
+            <div class="card card--glass anim d5" style="padding: 16px 20px;">
+              <p class="strong" style="font-size: 15px;"><i class="fa-solid fa-arrow-trend-up" style="color:var(--warning); width:24px;"></i> 真实的关系阶段推进</p>
+            </div>
+            <div class="card card--glass anim d5" style="padding: 16px 20px;">
+              <p class="strong" style="font-size: 15px;"><i class="fa-solid fa-clapperboard" style="color:var(--purple); width:24px;"></i> 事件驱动的剧情机制</p>
+            </div>
+          </div>
+
+          <p class="anim d5 center" style="margin-top: 8px; font-size: 14px; color: var(--text-2);">
+            本质是体验视角的升维：<br />
+            从“使用工具”转向“沉浸生活”。
+          </p>
+        </div>
+      </section>
+
+      <!-- P07 Layers -->
+      <section class="slide" data-index="6" aria-label="第 7 页：系统架构">
+        <div class="slide__inner">
+          <header class="slide__header">
+            <div class="tag anim">07 / 系统架构</div>
+            <h2 class="title anim d1">核心体验三层解构</h2>
+          </header>
+
+          <p class="desc anim d2">三层相互咬合，形成自洽且稳健的产品生态。</p>
+
+          <div class="anim d3" style="margin-top: 6px;">
+            <div class="layer layer--1">
+              <h3 style="color: var(--text-1); font-size: 16px; margin-bottom: 8px;">
+                <i class="fa-regular fa-comments" style="color:var(--purple)"></i> 顶层：互动层
+              </h3>
+              <p style="font-size: 14px; color: var(--text-2);">文本聊天 · 语音沉浸 · 关系成长</p>
+              <div class="muted-2" style="font-size: 12px; margin-top: 8px;">负责：建立情感羁绊与情绪出口</div>
+            </div>
+
+            <div class="layer layer--2">
+              <h3 style="color: var(--text-1); font-size: 16px; margin-bottom: 8px;">
+                <i class="fa-solid fa-puzzle-piece" style="color:var(--blue)"></i> 中层：游戏层
+              </h3>
+              <p style="font-size: 14px; color: var(--text-2);">轻量玩法 · 资源产出 · 节奏驱动</p>
+              <div class="muted-2" style="font-size: 12px; margin-top: 8px;">负责：降低门槛与提供短线多巴胺</div>
+            </div>
+
+            <div class="layer layer--3">
+              <h3 style="color: var(--text-1); font-size: 16px; margin-bottom: 8px;">
+                <i class="fa-solid fa-coins" style="color:var(--success)"></i> 底层：经济层
+              </h3>
+              <p style="font-size: 14px; color: var(--text-2);">体力消耗 · 付费加速 · 深度解锁</p>
+              <div class="muted-2" style="font-size: 12px; margin-top: 8px;">负责：商业化变现与控制消耗节奏</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- P08 VS -->
+      <section class="slide" data-index="7" aria-label="第 8 页：竞争壁垒">
+        <div class="slide__inner">
+          <header class="slide__header">
+            <div class="tag anim">08 / 竞争壁垒</div>
+            <h2 class="title anim d1">为何商业模型更优？</h2>
+          </header>
+
+          <div class="vs-card anim d2">
+            <div class="vs-top">
+              <span class="strong" style="color: var(--text-1);">纯 AI 工具产品</span>
+              <span class="muted-2" style="font-size: 12px;">传统</span>
+            </div>
+            <div class="vs-row">
+              <div class="muted">吸量能力：<span class="accent-danger">弱</span></div>
+              <div class="muted">留存率：<span class="accent-warning">中等</span></div>
+              <div class="muted">付费上限：<span class="accent-danger">低</span></div>
+            </div>
+          </div>
+
+          <div class="vs-card anim d3">
+            <div class="vs-top">
+              <span class="strong" style="color: var(--text-1);">纯休闲小游戏</span>
+              <span class="muted-2" style="font-size: 12px;">传统</span>
+            </div>
+            <div class="vs-row">
+              <div class="muted">吸量能力：<span class="accent-success">极强</span></div>
+              <div class="muted">留存率：<span class="accent-danger">较差</span></div>
+              <div class="muted">付费上限：<span class="accent-warning">中等</span></div>
+            </div>
+          </div>
+
+          <div class="vs-card vs-card--winner anim d4">
+            <div class="vs-top">
+              <span class="strong" style="font-size: 16px; color: var(--blue);">我们的新物种融合</span>
+              <span class="badge">优势互补</span>
+            </div>
+            <div class="vs-row" style="border-top-color: rgba(10, 132, 255, 0.2);">
+              <div style="color: var(--text-1);">吸量能力：<span class="accent-success strong">极强</span></div>
+              <div style="color: var(--text-1);">留存率：<span class="accent-success strong">极高</span></div>
+              <div style="color: var(--text-1);">付费上限：<span class="accent-success strong">强扩展</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- P09 Tech -->
+      <section class="slide" data-index="8" aria-label="第 9 页：技术支撑">
+        <div class="slide__inner">
+          <header class="slide__header">
+            <div class="tag anim">09 / 技术支撑</div>
+            <h2 class="title anim d1">AI 基础设施已就绪</h2>
+          </header>
+
+          <p class="desc anim d2">不需等待 AGI，现有的成熟 API 足以完美支撑产品闭环：</p>
+
+          <div class="stack">
+            <div class="card card--glass anim d3" style="padding: 16px 20px;">
+              <h3 style="font-size: 15px; margin-bottom: 6px; color: var(--text-1);">
+                <i class="fa-solid fa-pen-nib" style="color:var(--text-2); width:24px;"></i> 角色设定强控文本
+              </h3>
+              <p style="font-size: 13px; color: var(--text-2);">
+                利用 System Prompt 稳定输出符合世界观的高质量互动，杜绝 OOC（人设崩塌）。
+              </p>
+            </div>
+
+            <div class="card card--glass anim d4" style="padding: 16px 20px;">
+              <h3 style="font-size: 15px; margin-bottom: 6px; color: var(--text-1);">
+                <i class="fa-solid fa-waveform-lines" style="color:var(--text-2); width:24px;"></i> 拟真语音与情感 TTS
+              </h3>
+              <p style="font-size: 13px; color: var(--text-2);">
+                附带喘息、笑声、停顿的毫秒级延迟语音技术已高度普及。
+              </p>
+            </div>
+
+            <div class="card card--glass anim d5" style="padding: 16px 20px;">
+              <h3 style="font-size: 15px; margin-bottom: 6px; color: var(--text-1);">
+                <i class="fa-solid fa-brain" style="color:var(--text-2); width:24px;"></i> 向量数据库与长记忆
+              </h3>
+              <p style="font-size: 13px; color: var(--text-2);">
+                RAG 技术可精准记住玩家的微小选择，真正推动游戏内的羁绊演进。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- P10 Monetization -->
+      <section class="slide" data-index="9" aria-label="第 10 页：变现逻辑">
+        <div class="slide__inner">
+          <header class="slide__header">
+            <div class="tag anim">10 / 变现逻辑</div>
+            <h2 class="title anim d1">不卖冰冷的算力次数</h2>
+          </header>
+
+          <p class="desc anim d2">引导玩家为“情绪沉浸”和“关系资产”买单：</p>
+
+          <div class="card card--glass anim d3" style="padding: 24px 20px;">
+            <div class="row row--top">
+              <div class="iconbox" aria-hidden="true"><i class="fa-solid fa-battery-full" style="color:var(--success)"></i></div>
+              <div>
+                <h3 style="font-size: 16px; margin: 0 0 4px; color: var(--text-1);">基础：体力与资源统筹</h3>
+                <p style="font-size: 13px; color: var(--text-2);">售卖体力包、月卡。控制玩家的推图与聊天节奏，构建基础流水。</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card card--glass anim d4" style="padding: 24px 20px;">
+            <div class="row row--top">
+              <div class="iconbox" aria-hidden="true"><i class="fa-solid fa-key" style="color:var(--warning)"></i></div>
+              <div>
+                <h3 style="font-size: 16px; margin: 0 0 4px; color: var(--text-1);">进阶：专属私密剧情</h3>
+                <p style="font-size: 13px; color: var(--text-2);">售卖限定剧本、特殊交互权限。利用好奇心与占有欲驱动内购。</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card card--glass anim d5" style="padding: 24px 20px;">
+            <div class="row row--top">
+              <div class="iconbox" aria-hidden="true"><i class="fa-solid fa-gem" style="color:var(--purple)"></i></div>
+              <div>
+                <h3 style="font-size: 16px; margin: 0 0 4px; color: var(--text-1);">高净值：数字资产与装扮</h3>
+                <p style="font-size: 13px; color: var(--text-2);">售卖多角色槽位、定制服装与家园道具。为“专属感”高额付费。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- P11 Roadmap -->
+      <section class="slide" data-index="10" aria-label="第 11 页：阶段目标">
+        <div class="slide__inner">
+          <header class="slide__header">
+            <div class="tag anim">11 / 阶段目标</div>
+            <h2 class="title anim d1">项目路线图</h2>
+          </header>
+
+          <p class="desc anim d2">小步快跑：先验证核心流转结构，再扩大内容规模。</p>
+
+          <div class="timeline anim d3" aria-label="路线图时间线">
+            <div class="tl-item">
+              <div class="tl-dot"></div>
+              <h3 style="color: var(--text-1); font-size: 16px;">阶段一 (MVP / 前3个月)</h3>
+              <div style="margin-top: 8px; font-size: 14px; color: var(--text-2);">
+                <p class="strong" style="color:var(--text-1); margin-bottom:4px;"><i class="fa-solid fa-puzzle-piece" style="color:var(--blue); margin-right:6px;"></i>结构验证期</p>
+                单小游戏入口 · 核心对话反馈 · 首个好感度系统跑通
+              </div>
+            </div>
+
+            <div class="tl-item anim d4">
+              <div class="tl-dot" style="border-color: var(--text-2);"></div>
+              <h3 style="color: var(--text-2); font-size: 16px;">阶段二 (Beta / 3-6个月)</h3>
+              <div style="margin-top: 8px; font-size: 14px; color: var(--text-2);">
+                <p class="strong" style="color:var(--text-2); margin-bottom:4px;"><i class="fa-solid fa-book-open" style="color:var(--warning); margin-right:6px;"></i>内容丰富期</p>
+                多角色矩阵引入 · 剧情层级拓宽 · IAA+IAP 商业模型验证
+              </div>
+            </div>
+
+            <div class="tl-item anim d5">
+              <div class="tl-dot" style="border-color: var(--text-3);"></div>
+              <h3 style="color: var(--text-3); font-size: 16px;">阶段三 (1.0 / 6个月后)</h3>
+              <div style="margin-top: 8px; font-size: 14px; color: var(--text-3);">
+                <p class="strong" style="margin-bottom:4px;"><i class="fa-solid fa-rocket" style="color:var(--success); margin-right:6px;"></i>规模爆发期</p>
+                AI 辅助内容管线建立 · 大规模商业化买量扩圈
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- P12 Timing -->
+      <section class="slide" data-index="11" aria-label="第 12 页：为什么是现在">
+        <div class="slide__inner">
+          <header class="slide__header">
+            <div class="tag anim">12 / 为什么是现在</div>
+            <h2 class="title anim d1">绝佳的时间窗口</h2>
+          </header>
+
+          <div class="anim d2" style="margin: 6px 0 8px;">
+            <p style="font-size: 18px; font-weight: 500; color: var(--text-1);">
+              这不是技术红利，<br />
+              而是罕见的产品结构红利。
+            </p>
+          </div>
+
+          <div class="stack">
+            <div class="card card--glass anim d3" style="padding: 20px;">
+              <h3 style="color: var(--text-1); font-size: 15px; margin-bottom: 8px;">1. 用户心智已成熟</h3>
+              <p style="font-size: 13px; color: var(--text-2);">AI 陪伴理念已被头部工具普及，大众认知门槛降至冰点。</p>
+            </div>
+
+            <div class="card card--glass anim d4" style="padding: 20px;">
+              <h3 style="color: var(--text-1); font-size: 15px; margin-bottom: 8px;">2. 第一代产品遭遇瓶颈</h3>
+              <p style="font-size: 13px; color: var(--text-2);">纯文字聊天的“新鲜感”消退，用户急需更具目标感的新形态接力。</p>
+            </div>
+
+            <div class="card card--glass anim d5" style="padding: 20px;">
+              <h3 style="color: var(--text-1); font-size: 15px; margin-bottom: 8px;">3. 跨界融合处于蓝海</h3>
+              <p style="font-size: 13px; color: var(--text-2);">游戏圈不懂 AI 情绪，AI 圈不懂游戏节奏。跨界复合产品存在巨大真空地带。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- P13 Team -->
+      <section class="slide" data-index="12" aria-label="第 13 页：我们的护城河">
+        <div class="slide__inner">
+          <header class="slide__header">
+            <div class="tag anim">13 / 我们的护城河</div>
+            <h2 class="title anim d1">团队的复合基因</h2>
+          </header>
+
+          <p class="desc anim d2">能完美驾驭“游戏机制”与“情绪体验”双核心：</p>
+
+          <div class="grid-2">
+            <div class="card card--glass grid-card anim d3">
+              <i class="fa-solid fa-gamepad"></i>
+              <h3 style="font-size: 14px; color: var(--text-1); margin-bottom: 6px;">系统架构设计</h3>
+              <p style="font-size: 12px; color: var(--text-2);">深谙底层玩法循环与资源投放</p>
+            </div>
+
+            <div class="card card--glass grid-card anim d4">
+              <i class="fa-solid fa-chart-pie"></i>
+              <h3 style="font-size: 14px; color: var(--text-1); margin-bottom: 6px;">商业买量逻辑</h3>
+              <p style="font-size: 12px; color: var(--text-2);">精通获客漏斗与变现转化</p>
+            </div>
+
+            <div class="card card--glass grid-card anim d5">
+              <i class="fa-solid fa-heart-pulse"></i>
+              <h3 style="font-size: 14px; color: var(--text-1); margin-bottom: 6px;">情绪产品掌控</h3>
+              <p style="font-size: 12px; color: var(--text-2);">精准拿捏长线情感羁绊点</p>
+            </div>
+
+            <div class="card card--glass grid-card anim d5">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+              <h3 style="font-size: 14px; color: var(--text-1); margin-bottom: 6px;">提示词工程</h3>
+              <p style="font-size: 12px; color: var(--text-2);">榨取模型上限，保障输出质感</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- P14 Closing -->
+      <section class="slide" data-index="13" aria-label="第 14 页：愿景与未来">
+        <div class="slide__inner" style="align-items: center; text-align: center;">
+          <header class="slide__header">
+            <div class="tag anim">14 / 愿景与未来</div>
+          </header>
+
+          <h2 class="anim d1" style="font-size: 32px; color: var(--text-1); margin: 8px 0 12px; line-height: 1.5; font-weight: 700;">
+            让<span class="accent-blue">游戏</span>带人进来<br />
+            让<span class="accent-purple">互动</span>使人沉浸<br />
+            让<span style="color:var(--text-1)">关系</span>把人留下
+          </h2>
+
+          <div class="card card--glass anim d2" style="width: 100%; padding: 32px 20px; margin-top: 8px;">
+            <p style="font-size: 16px; font-weight: 600; color: var(--text-1); margin-bottom: 8px;">共同定义下一代陪伴产品</p>
+            <p style="font-size: 14px; color: var(--text-2);">构建可玩的 AI 世界 · 培育可成长的关系</p>
+          </div>
+
+          <div class="anim d3" style="margin-top: 28px;">
+            <div style="background: var(--text-1); color: var(--bg); padding: 16px 36px; border-radius: 30px; font-weight: 600; font-size: 16px;">
+              期待您的同行合作
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <nav class="progress" id="dots" aria-label="页码导航"></nav>
+    <div class="scroll-hint" id="scrollHint" aria-hidden="true">
+      <span>垂直滑动</span>
+      <i class="fa-solid fa-chevron-down" style="margin-top: 4px;"></i>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      const slider = document.getElementById('slider');
+      const slides = Array.from(document.querySelectorAll('.slide'));
+      const dotsWrap = document.getElementById('dots');
+      const scrollHint = document.getElementById('scrollHint');
+
+      // Build dots
+      slides.forEach((slide, index) => {
+        const dot = document.createElement('div');
+        dot.className = 'dot';
+        dot.setAttribute('role', 'button');
+        dot.setAttribute('tabindex', '0');
+        dot.setAttribute('aria-label', `跳转到第 ${index + 1} 页`);
+        dot.dataset.index = String(index);
+        if (index === 0) dot.setAttribute('aria-current', 'true');
+        dotsWrap.appendChild(dot);
+      });
+
+      const dots = Array.from(dotsWrap.querySelectorAll('.dot'));
+
+      function setActive(index) {
+        slides.forEach(s => s.classList.remove('is-active'));
+        slides[index]?.classList.add('is-active');
+
+        dots.forEach(d => d.removeAttribute('aria-current'));
+        dots[index]?.setAttribute('aria-current', 'true');
+
+        if (index > 0) scrollHint.style.display = 'none';
+      }
+
+      // Scroll to slide on dot click / enter
+      dotsWrap.addEventListener('click', (e) => {
+        const dot = e.target.closest('.dot');
+        if (!dot) return;
+        const idx = Number(dot.dataset.index);
+        slides[idx]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+
+      dotsWrap.addEventListener('keydown', (e) => {
+        const dot = e.target.closest('.dot');
+        if (!dot) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const idx = Number(dot.dataset.index);
+          slides[idx]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+
+      // Intersection observer: animate + sync dots
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          const idx = Number(entry.target.dataset.index || '0');
+          setActive(idx);
+        });
+      }, { root: slider, threshold: 0.45 });
+
+      slides.forEach(slide => io.observe(slide));
+
+      // Optional: keyboard navigation (desktop)
+      window.addEventListener('keydown', (e) => {
+        if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+        const current = dots.findIndex(d => d.getAttribute('aria-current') === 'true');
+        const next = e.key === 'ArrowDown' ? Math.min(current + 1, slides.length - 1) : Math.max(current - 1, 0);
+        slides[next]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>
